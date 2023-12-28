@@ -1,0 +1,204 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span><span class="s2">, </span><span class="s1">sys</span><span class="s2">, </span><span class="s1">random</span><span class="s2">, </span><span class="s1">csv</span>
+
+<span class="s1">pygame</span><span class="s2">.</span><span class="s1">init</span><span class="s2">()</span>
+<span class="s1">screen </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">display</span><span class="s2">.</span><span class="s1">set_mode</span><span class="s2">((</span><span class="s3">500</span><span class="s2">, </span><span class="s3">800</span><span class="s2">))</span>
+<span class="s1">pygame</span><span class="s2">.</span><span class="s1">display</span><span class="s2">.</span><span class="s1">set_caption</span><span class="s2">(</span><span class="s4">&quot;Flappy Pops by Neha&quot;</span><span class="s2">)</span>
+<span class="s1">clock </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">time</span><span class="s2">.</span><span class="s1">Clock</span><span class="s2">()</span>
+
+<span class="s1">big_font </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">font</span><span class="s2">.</span><span class="s1">SysFont</span><span class="s2">(</span><span class="s4">&quot;bahnschrift&quot;</span><span class="s2">, </span><span class="s3">70</span><span class="s2">)</span>
+<span class="s1">small_font </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">font</span><span class="s2">.</span><span class="s1">SysFont</span><span class="s2">(</span><span class="s4">&quot;bahnschrift&quot;</span><span class="s2">, </span><span class="s3">30</span><span class="s2">)</span>
+
+<span class="s5"># highscores = 'Highscores.csv'</span>
+
+<span class="s0">def </span><span class="s1">draw_floor</span><span class="s2">(</span><span class="s1">x</span><span class="s2">):</span>
+    <span class="s0">if </span><span class="s1">x </span><span class="s2">&lt;= -</span><span class="s3">970</span><span class="s2">:</span>
+        <span class="s1">x </span><span class="s2">= </span><span class="s3">0</span>
+
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">floor_surface</span><span class="s2">, (</span><span class="s1">x</span><span class="s2">, </span><span class="s3">700</span><span class="s2">))</span>
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">floor_surface</span><span class="s2">, (</span><span class="s1">x </span><span class="s2">+ </span><span class="s3">435</span><span class="s2">, </span><span class="s3">700</span><span class="s2">))</span>
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">floor_surface</span><span class="s2">, (</span><span class="s1">x </span><span class="s2">+ </span><span class="s3">435</span><span class="s2">+</span><span class="s3">435</span><span class="s2">, </span><span class="s3">700</span><span class="s2">))</span>
+
+    <span class="s0">return </span><span class="s1">x </span><span class="s2">- </span><span class="s3">1</span>
+
+
+<span class="s0">def </span><span class="s1">create_pipe</span><span class="s2">():</span>
+    <span class="s1">random_pipe_pos </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">choice</span><span class="s2">(</span><span class="s1">pipe_height</span><span class="s2">)</span>
+    <span class="s1">bottom_pipe </span><span class="s2">= </span><span class="s1">pipe_surface</span><span class="s2">.</span><span class="s1">get_rect</span><span class="s2">(</span><span class="s1">midtop</span><span class="s2">=(</span><span class="s3">510</span><span class="s2">,</span><span class="s1">random_pipe_pos</span><span class="s2">))</span>
+    <span class="s1">top_pipe </span><span class="s2">= </span><span class="s1">pipe_surface</span><span class="s2">.</span><span class="s1">get_rect</span><span class="s2">(</span><span class="s1">midbottom</span><span class="s2">=(</span><span class="s3">510</span><span class="s2">,</span><span class="s1">random_pipe_pos</span><span class="s2">-</span><span class="s3">220</span><span class="s2">))</span>
+    <span class="s0">return </span><span class="s1">bottom_pipe</span><span class="s2">, </span><span class="s1">top_pipe</span>
+
+
+<span class="s0">def </span><span class="s1">move_pipes</span><span class="s2">(</span><span class="s1">pipes</span><span class="s2">):</span>
+    <span class="s0">for </span><span class="s1">pipe </span><span class="s0">in </span><span class="s1">pipes</span><span class="s2">:</span>
+        <span class="s1">pipe</span><span class="s2">.</span><span class="s1">centerx </span><span class="s2">-= </span><span class="s3">5</span>
+    <span class="s0">return </span><span class="s1">pipes</span>
+
+<span class="s0">def </span><span class="s1">draw_pipes</span><span class="s2">(</span><span class="s1">pipes</span><span class="s2">):</span>
+    <span class="s0">for </span><span class="s1">pipe </span><span class="s0">in </span><span class="s1">pipes</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s1">pipe</span><span class="s2">.</span><span class="s1">bottom </span><span class="s2">&gt;= </span><span class="s3">600</span><span class="s2">:</span>
+            <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">pipe_surface</span><span class="s2">, </span><span class="s1">pipe</span><span class="s2">)</span>
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s1">flip_pipe </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">flip</span><span class="s2">(</span><span class="s1">pipe_surface</span><span class="s2">, </span><span class="s0">False</span><span class="s2">, </span><span class="s0">True</span><span class="s2">)</span>
+            <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">flip_pipe</span><span class="s2">, </span><span class="s1">pipe</span><span class="s2">)</span>
+
+<span class="s0">def </span><span class="s1">check_collisions</span><span class="s2">(</span><span class="s1">pipes</span><span class="s2">):</span>
+    <span class="s0">for </span><span class="s1">pipe </span><span class="s0">in </span><span class="s1">pipes</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">colliderect</span><span class="s2">(</span><span class="s1">pipe</span><span class="s2">):</span>
+            <span class="s0">return False</span>
+
+    <span class="s0">if </span><span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">top </span><span class="s2">&lt;= </span><span class="s3">0 </span><span class="s0">or </span><span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">bottom </span><span class="s2">&gt;= </span><span class="s3">750</span><span class="s2">:</span>
+        <span class="s0">return False</span>
+
+    <span class="s0">return True</span>
+
+<span class="s0">def </span><span class="s1">show_score</span><span class="s2">(</span><span class="s1">score</span><span class="s2">):</span>
+    <span class="s5"># print(score)</span>
+    <span class="s1">value </span><span class="s2">= </span><span class="s1">small_font</span><span class="s2">.</span><span class="s1">render</span><span class="s2">(</span><span class="s4">&quot;Score: &quot; </span><span class="s2">+ </span><span class="s1">str</span><span class="s2">(</span><span class="s1">score</span><span class="s2">), </span><span class="s0">True</span><span class="s2">, (</span><span class="s3">0</span><span class="s2">,</span><span class="s3">0</span><span class="s2">,</span><span class="s3">0</span><span class="s2">))</span>
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">value</span><span class="s2">, [</span><span class="s3">10</span><span class="s2">, </span><span class="s3">10</span><span class="s2">])</span>
+
+    <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s4">'Highscores.csv'</span><span class="s2">, </span><span class="s4">'r'</span><span class="s2">) </span><span class="s0">as </span><span class="s1">file</span><span class="s2">:</span>
+        <span class="s1">reader </span><span class="s2">= </span><span class="s1">csv</span><span class="s2">.</span><span class="s1">reader</span><span class="s2">(</span><span class="s1">file</span><span class="s2">)</span>
+        <span class="s1">high_score </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">next</span><span class="s2">(</span><span class="s1">reader</span><span class="s2">)[</span><span class="s3">0</span><span class="s2">])</span>
+
+    <span class="s1">max_score </span><span class="s2">= </span><span class="s1">small_font</span><span class="s2">.</span><span class="s1">render</span><span class="s2">(</span><span class="s4">f&quot;Highscore: </span><span class="s0">{</span><span class="s1">high_score</span><span class="s0">}</span><span class="s4">&quot;</span><span class="s2">, </span><span class="s0">True</span><span class="s2">, (</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">))</span>
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">max_score</span><span class="s2">, [</span><span class="s3">10</span><span class="s2">, </span><span class="s3">30</span><span class="s2">])</span>
+
+
+<span class="s0">def </span><span class="s1">check_score</span><span class="s2">(</span><span class="s1">score</span><span class="s2">, </span><span class="s1">pipes</span><span class="s2">):</span>
+    <span class="s0">for </span><span class="s1">pipe </span><span class="s0">in </span><span class="s1">pipes</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">x </span><span class="s2">== </span><span class="s1">pipe</span><span class="s2">.</span><span class="s1">x</span><span class="s2">:</span>
+            <span class="s1">print</span><span class="s2">(</span><span class="s4">&quot;Yay!&quot;</span><span class="s2">)</span>
+            <span class="s0">return </span><span class="s1">score</span><span class="s2">+</span><span class="s3">1</span>
+
+    <span class="s0">return </span><span class="s1">score</span>
+
+<span class="s0">def </span><span class="s1">highscore</span><span class="s2">(</span><span class="s1">score</span><span class="s2">):</span>
+    <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s4">'Highscores.csv'</span><span class="s2">, </span><span class="s4">'r'</span><span class="s2">) </span><span class="s0">as </span><span class="s1">file</span><span class="s2">:</span>
+        <span class="s1">reader </span><span class="s2">= </span><span class="s1">csv</span><span class="s2">.</span><span class="s1">reader</span><span class="s2">(</span><span class="s1">file</span><span class="s2">)</span>
+        <span class="s1">high_score </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">next</span><span class="s2">(</span><span class="s1">reader</span><span class="s2">)[</span><span class="s3">0</span><span class="s2">])</span>
+
+    <span class="s0">if </span><span class="s1">score </span><span class="s2">&gt; </span><span class="s1">high_score</span><span class="s2">:</span>
+        <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s4">'Highscores.csv'</span><span class="s2">, </span><span class="s4">'w'</span><span class="s2">, </span><span class="s1">newline</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">file</span><span class="s2">:</span>
+            <span class="s1">csvwriter </span><span class="s2">= </span><span class="s1">csv</span><span class="s2">.</span><span class="s1">writer</span><span class="s2">(</span><span class="s1">file</span><span class="s2">)</span>
+            <span class="s1">csvwriter</span><span class="s2">.</span><span class="s1">writerow</span><span class="s2">([</span><span class="s1">score</span><span class="s2">])</span>
+        <span class="s0">return </span><span class="s1">score</span>
+    <span class="s0">return </span><span class="s1">high_score</span>
+
+
+<span class="s5"># GAME VARIABLES!</span>
+
+<span class="s1">gravity </span><span class="s2">= </span><span class="s3">0.35</span>
+<span class="s1">bird_movement </span><span class="s2">= </span><span class="s3">0</span>
+<span class="s1">dead </span><span class="s2">= </span><span class="s0">False</span>
+<span class="s1">game_active </span><span class="s2">= </span><span class="s0">True</span>
+<span class="s1">score </span><span class="s2">= </span><span class="s3">0</span>
+
+
+
+<span class="s1">bg_surface </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">scale2x</span><span class="s2">(</span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">load</span><span class="s2">(</span><span class="s4">'bg_5.png'</span><span class="s2">)).</span><span class="s1">convert</span><span class="s2">()</span>
+
+<span class="s1">floor_surface </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">scale2x</span><span class="s2">(</span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">load</span><span class="s2">(</span><span class="s4">'download.png'</span><span class="s2">)).</span><span class="s1">convert</span><span class="s2">()</span>
+<span class="s1">floor_x_pos </span><span class="s2">= </span><span class="s3">0</span>
+
+<span class="s1">bird_surface </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">scale_by</span><span class="s2">(</span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">load</span><span class="s2">(</span><span class="s4">'srini.jpeg'</span><span class="s2">), </span><span class="s3">0.2</span><span class="s2">).</span><span class="s1">convert</span><span class="s2">()</span>
+<span class="s1">bird_surface</span><span class="s2">.</span><span class="s1">set_colorkey</span><span class="s2">((</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">))</span>
+<span class="s1">bird_rect </span><span class="s2">= </span><span class="s1">bird_surface</span><span class="s2">.</span><span class="s1">get_rect</span><span class="s2">(</span><span class="s1">center</span><span class="s2">=(</span><span class="s3">100</span><span class="s2">, </span><span class="s3">400</span><span class="s2">))</span>
+
+<span class="s1">pipe_surface </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">scale_by</span><span class="s2">(</span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">load</span><span class="s2">(</span><span class="s4">'pipe.png'</span><span class="s2">), </span><span class="s3">.35</span><span class="s2">).</span><span class="s1">convert</span><span class="s2">()</span>
+<span class="s1">pipe_list </span><span class="s2">= []</span>
+<span class="s1">SPAWNPIPE </span><span class="s2">= </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">USEREVENT</span>
+<span class="s1">pygame</span><span class="s2">.</span><span class="s1">time</span><span class="s2">.</span><span class="s1">set_timer</span><span class="s2">(</span><span class="s1">SPAWNPIPE</span><span class="s2">,</span><span class="s3">1200</span><span class="s2">)</span>
+<span class="s1">pipe_height </span><span class="s2">= [</span><span class="s3">200</span><span class="s2">, </span><span class="s3">210</span><span class="s2">, </span><span class="s3">220</span><span class="s2">, </span><span class="s3">230</span><span class="s2">, </span><span class="s3">240</span><span class="s2">, </span><span class="s3">250</span><span class="s2">, </span><span class="s3">260</span><span class="s2">, </span><span class="s3">270</span><span class="s2">, </span><span class="s3">280</span><span class="s2">, </span><span class="s3">290</span><span class="s2">,</span>
+               <span class="s3">300</span><span class="s2">, </span><span class="s3">310</span><span class="s2">, </span><span class="s3">320</span><span class="s2">, </span><span class="s3">330</span><span class="s2">, </span><span class="s3">340</span><span class="s2">, </span><span class="s3">350</span><span class="s2">, </span><span class="s3">360</span><span class="s2">, </span><span class="s3">370</span><span class="s2">, </span><span class="s3">380</span><span class="s2">, </span><span class="s3">390</span><span class="s2">,</span>
+               <span class="s3">400</span><span class="s2">, </span><span class="s3">410</span><span class="s2">, </span><span class="s3">420</span><span class="s2">, </span><span class="s3">430</span><span class="s2">, </span><span class="s3">440</span><span class="s2">, </span><span class="s3">450</span><span class="s2">, </span><span class="s3">460</span><span class="s2">, </span><span class="s3">470</span><span class="s2">, </span><span class="s3">480</span><span class="s2">, </span><span class="s3">490</span><span class="s2">,</span>
+               <span class="s3">500</span><span class="s2">, </span><span class="s3">510</span><span class="s2">, </span><span class="s3">520</span><span class="s2">, </span><span class="s3">530</span><span class="s2">, </span><span class="s3">540</span><span class="s2">, </span><span class="s3">550</span><span class="s2">, </span><span class="s3">560</span><span class="s2">, </span><span class="s3">570</span><span class="s2">, </span><span class="s3">580</span><span class="s2">, </span><span class="s3">590</span><span class="s2">, </span><span class="s3">600</span><span class="s2">]</span>
+
+
+<span class="s0">while True</span><span class="s2">:</span>
+    <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">get</span><span class="s2">():</span>
+        <span class="s0">if </span><span class="s1">event</span><span class="s2">.</span><span class="s1">type </span><span class="s2">== </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">QUIT</span><span class="s2">:</span>
+            <span class="s1">pygame</span><span class="s2">.</span><span class="s1">quit</span><span class="s2">()</span>
+            <span class="s1">sys</span><span class="s2">.</span><span class="s1">exit</span><span class="s2">()</span>
+        <span class="s0">if </span><span class="s1">event</span><span class="s2">.</span><span class="s1">type </span><span class="s2">== </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">KEYDOWN</span><span class="s2">:</span>
+            <span class="s0">if </span><span class="s1">event</span><span class="s2">.</span><span class="s1">key </span><span class="s2">== </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">K_SPACE</span><span class="s2">:</span>
+                <span class="s1">bird_movement </span><span class="s2">= </span><span class="s3">0</span>
+                <span class="s1">bird_movement </span><span class="s2">-= </span><span class="s3">10</span>
+
+            <span class="s0">if </span><span class="s1">event</span><span class="s2">.</span><span class="s1">key </span><span class="s2">== </span><span class="s1">pygame</span><span class="s2">.</span><span class="s1">K_SPACE </span><span class="s0">and </span><span class="s1">game_active </span><span class="s2">== </span><span class="s0">False</span><span class="s2">:</span>
+                <span class="s1">game_active </span><span class="s2">= </span><span class="s0">True</span>
+                <span class="s1">pipe_list </span><span class="s2">= []</span>
+                <span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">y </span><span class="s2">= </span><span class="s3">400</span>
+                <span class="s1">highscore</span><span class="s2">(</span><span class="s1">score</span><span class="s2">)</span>
+
+                <span class="s1">score </span><span class="s2">= </span><span class="s3">0</span>
+
+        <span class="s0">if </span><span class="s1">event</span><span class="s2">.</span><span class="s1">type </span><span class="s2">== </span><span class="s1">SPAWNPIPE</span><span class="s2">:</span>
+            <span class="s1">pipe_list</span><span class="s2">.</span><span class="s1">extend</span><span class="s2">(</span><span class="s1">create_pipe</span><span class="s2">())</span>
+
+
+    <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">bg_surface</span><span class="s2">,(</span><span class="s3">0</span><span class="s2">,</span><span class="s3">0</span><span class="s2">))</span>
+
+    <span class="s0">if </span><span class="s1">game_active</span><span class="s2">:</span>
+        <span class="s5"># bird movement</span>
+        <span class="s1">bird_movement </span><span class="s2">+= </span><span class="s1">gravity</span>
+        <span class="s1">bird_rect</span><span class="s2">.</span><span class="s1">centery </span><span class="s2">+= </span><span class="s1">bird_movement</span>
+        <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">bird_surface</span><span class="s2">, </span><span class="s1">bird_rect</span><span class="s2">)</span>
+
+        <span class="s5"># pipes</span>
+        <span class="s1">pipe_list </span><span class="s2">= </span><span class="s1">move_pipes</span><span class="s2">(</span><span class="s1">pipe_list</span><span class="s2">)</span>
+        <span class="s1">draw_pipes</span><span class="s2">(</span><span class="s1">pipe_list</span><span class="s2">)</span>
+
+        <span class="s1">score </span><span class="s2">= </span><span class="s1">check_score</span><span class="s2">(</span><span class="s1">score</span><span class="s2">, </span><span class="s1">pipe_list</span><span class="s2">)</span>
+        <span class="s5"># print(score)</span>
+        <span class="s5"># show_score(score)</span>
+        <span class="s1">game_active </span><span class="s2">= </span><span class="s1">check_collisions</span><span class="s2">(</span><span class="s1">pipe_list</span><span class="s2">)</span>
+
+
+    <span class="s0">else</span><span class="s2">:</span>
+        <span class="s1">text1 </span><span class="s2">= </span><span class="s1">big_font</span><span class="s2">.</span><span class="s1">render</span><span class="s2">(</span><span class="s4">f&quot;Game Over&quot;</span><span class="s2">, </span><span class="s0">True</span><span class="s2">, (</span><span class="s3">213</span><span class="s2">, </span><span class="s3">50</span><span class="s2">, </span><span class="s3">80</span><span class="s2">))</span>
+        <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">text1</span><span class="s2">, [</span><span class="s3">128</span><span class="s2">, </span><span class="s3">800 </span><span class="s2">/ </span><span class="s3">3</span><span class="s2">])</span>
+
+        <span class="s1">text2 </span><span class="s2">= </span><span class="s1">small_font</span><span class="s2">.</span><span class="s1">render</span><span class="s2">(</span><span class="s4">f&quot;Score: </span><span class="s0">{</span><span class="s1">score</span><span class="s0">} </span><span class="s4">Press SPACE to Restart&quot;</span><span class="s2">, </span><span class="s0">True</span><span class="s2">, (</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">))</span>
+        <span class="s1">screen</span><span class="s2">.</span><span class="s1">blit</span><span class="s2">(</span><span class="s1">text2</span><span class="s2">, [</span><span class="s3">100</span><span class="s2">, </span><span class="s3">320</span><span class="s2">])</span>
+
+        <span class="s5"># score = 1</span>
+
+
+
+
+
+
+    <span class="s5"># floor</span>
+    <span class="s5"># score = 0</span>
+    <span class="s1">show_score</span><span class="s2">(</span><span class="s1">score</span><span class="s2">)</span>
+    <span class="s1">floor_x_pos </span><span class="s2">= </span><span class="s1">draw_floor</span><span class="s2">(</span><span class="s1">floor_x_pos</span><span class="s2">)</span>
+
+
+    <span class="s1">pygame</span><span class="s2">.</span><span class="s1">display</span><span class="s2">.</span><span class="s1">update</span><span class="s2">()</span>
+    <span class="s1">clock</span><span class="s2">.</span><span class="s1">tick</span><span class="s2">(</span><span class="s3">100</span><span class="s2">)</span>
+
+
+
+
+</pre>
+</body>
+</html>
